@@ -1,0 +1,65 @@
+server:
+  port: 8081 #since tomcat could run on 8080
+  ssl:
+    enabled: false
+#    key-alias: wso2carbon
+#    key-store: src/main/resources/keystore.jks
+#    key-store-password: wso2carbon
+#    key-store-type: JKS
+#    trust-store: src/main/resources/truststore.jks
+#    trust-store-password: wso2carbon
+#    trust-store-type: JKS
+#    client-auth: want # need or want
+logging:
+  level:
+      org:
+        springframework:
+          cloud:
+            gateway: INFO
+            web: INFO
+      reactor:
+        netty: INFO
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.cloud.gateway.filter.ratelimit.redisRateLimiter
+      - org.springframework.cloud.gateway.config.GatewayRedisAutoConfiguration
+  main:
+    web-application-type: reactive
+  security:
+    enable-csrf: false
+  cloud:
+    gateway:
+      routes:
+        - id: my_route
+          uri: https://localhost:9444
+          predicates:
+            - Path=/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                #redis-rate-limiter.replenishRate: 2
+                #redis-rate-limiter.burstCapacity: 2
+                #redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@SimpleClientIPResolver}"
+                rate-limiter: "#{@CustomRateLimiter}"
+      redis:
+        enabled: true
+      httpclient: # temp for outgoing requests
+        wiretap: true
+        ssl:
+          useInsecureTrustManager: true
+#  profiles:
+#    active: dev # For development. Change to 'prod' for production env
+#
+
+
+  cache:
+    type: redis #for local can use 'simple'
+    redis: # can comment for local
+      time-to-live: 10000
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
