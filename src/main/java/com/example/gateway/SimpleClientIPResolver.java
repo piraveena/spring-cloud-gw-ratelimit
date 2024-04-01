@@ -7,8 +7,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component("SimpleClientIPResolver")
 public class SimpleClientIPResolver implements KeyResolver {
+
     Log log = LogFactory.getLog(getClass());
 
     @Override
@@ -23,6 +27,6 @@ public class SimpleClientIPResolver implements KeyResolver {
         }
         String ip =  exchange.getRequest().getRemoteAddress().getAddress().getHostAddress();
         System.out.println(ip);
-        return Mono.just(org + "scim2/Users");
+        return Mono.just(path);
     }
 }

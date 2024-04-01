@@ -1,5 +1,7 @@
 package com.example.gateway;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.ratelimit.AbstractRateLimiter;
@@ -21,13 +23,38 @@ import java.util.Map;
 
 @Service
 @Primary
-@Component
+@Component("CustomRateLimiter")
 public class CustomRateLimiter implements RateLimiter<Object> {
+
+    private static final String REMAINING_TIME_IN_SECONDS_HEADER =
+            "X-RateLimit-Remaining-Time-In-Seconds";
+    private static final String TIME_IN_SECONDS_HEADER =
+            "X-RateLimit-Time-In-Seconds";
+
+    Map<String, String> customRatesForOrg = new HashMap<>()
+    {
+        {
+            put("carbon.super", "3");
+            put("tom", "4");
+        }
+    };
+
+    private static final Log LOG = LogFactory.getLog(CustomRateLimiter.class);
 
     @Override
     public Mono<Response> isAllowed(String routeId, String id) {
-        return null;
+
+        String ratePerOrg = customRatesForOrg.get(id);
+
+
+
+        LOG.info("=====" + "id: " + id + " : " +
+                "routeId: " + routeId) ;
+
+        Response response = new Response(true, new HashMap<>());
+        return Mono.just(response);
     }
+
 
     @Override
     public Map<String, Object> getConfig() {

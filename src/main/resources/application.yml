@@ -33,7 +33,7 @@ spring:
     gateway:
       routes:
         - id: my_route
-          uri: https://localhost:9444
+          uri: https://localhost:9444/
           predicates:
             - Path=/**
           filters:
