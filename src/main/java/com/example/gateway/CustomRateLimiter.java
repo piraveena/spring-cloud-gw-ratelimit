@@ -2,19 +2,10 @@ package com.example.gateway;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.gateway.filter.ratelimit.AbstractRateLimiter;
 import org.springframework.cloud.gateway.filter.ratelimit.RateLimiter;
-import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
-import org.springframework.cloud.gateway.support.ConfigurationService;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -44,14 +35,18 @@ public class CustomRateLimiter implements RateLimiter<Object> {
     @Override
     public Mono<Response> isAllowed(String routeId, String id) {
 
+        // Get the rate limit of the org+api
         String ratePerOrg = customRatesForOrg.get(id);
-
-
-
         LOG.info("=====" + "id: " + id + " : " +
                 "routeId: " + routeId) ;
+        // Initialise some cache logic and fill it with the bucket size.
 
+        // When an API request comes, decrease the bucket size. Again, clear the cache and refill it after 1s.
+
+        // If the cache exists, return true.
         Response response = new Response(true, new HashMap<>());
+
+        // If cache is not there, return false. GW will send 429 if `allowed`=false;
         return Mono.just(response);
     }
 
